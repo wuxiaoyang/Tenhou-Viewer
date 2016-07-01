@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import requests
+import urllib2
+from bs4 import BeautifulSoup
 
 D= {'name': 'onestar',
         'man':0,
@@ -19,6 +23,14 @@ def F(r0,r1,r2,r3):
 
 print F(0,0,0,1)
 
-r = requests.post('http://arcturus.su/tenhou/ranking/ranking.pl', data = D)
+#r = requests.post('http://arcturus.su/tenhou/ranking/ranking.pl', data = D)
 #print>>fout, (r.text).encode('gbk','ignore')
+
+#r = requests.post('http://tenhou.net/0/wg/')
+#soup = BeautifulSoup( r.text)
+#print soup.findAll('div',{'id':'b'})
+
+fout = open('test.txt','w')
+r = requests.post('http://arcturus.su/tenhou/ranking/ranking.pl', data = {'name':u'虎皮猫' , 'lang':'en'})
+print>>fout,  (r.text).encode('gbk','ignore')
 

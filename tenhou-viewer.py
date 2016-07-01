@@ -19,6 +19,18 @@ class main_window(QMainWindow):
         self.connect(self.actionExit, SIGNAL('triggered()'), self.slot_Exit)
         self.connect(self.actionAbout, SIGNAL('triggered()'), self.slot_About)
 
+        self.init_T()
+    
+    def init_T(self):
+
+        self.T.setColumnCount(5)
+        self.T.setRowCount(5)
+
+        for i in range(self.T.rowCount()):
+            self.T.setRowHeight(i,20)
+        for i in range(self.T.columnCount()):
+            self.T.setColumnWidth(i,60)
+
     def slot_Exit(self):
         self.close()
 
@@ -28,12 +40,11 @@ class main_window(QMainWindow):
 
 def __main():
 
-    webbrowser.get('windows-default').open('http://www.google.com') 
+    #webbrowser.get('windows-default').open('http://www.google.com') 
     app = QApplication(sys.argv)
     w = main_window()
     w.show()
     sys.exit(app.exec_())
-
 
 if __name__ == '__main__':
     __main()

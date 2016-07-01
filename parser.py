@@ -3,9 +3,12 @@
 from bs4 import BeautifulSoup
 import datetime
 import re
+import requests
+
 #from statics import *
 
 player_pattern = re.compile( U'(\S+)\(([+-]\d+\.0)\)')
+tag_a_pattern = re.compile('<a\s+href="(.*)"\s*>.*</a>')
 
 def record2dict(r):
     
@@ -14,29 +17,42 @@ def record2dict(r):
     loc = r[1]
     tmsp = datetime.datetime.strptime( r[3]+' '+r[4] ,'%Y-%m-%d %H:%M')
     level = r[5][:-2]
-    log = r[6]
     dan = r[7]
-    result = [ (float(score), name)  for name, score in player_pattern.findall(r[8]) ]
+    result = [ (float(score), name) for name, score in player_pattern.findall(r[8]) ]
     result.sort(reverse = True)
+
+    log = tag_a_pattern.search(r[6])
+    log = log.group(1) if log else None
 
     return {'rank':rank,
             'loc': loc, 
             'tmsp':tmsp,
             'level':level,
-            #'log':log,
+            'log':log,
             'dan':dan,
             'res':result
             }
 
-
 def parse(fin):
 
-    bs = BeautifulSoup(fin)
-    records = bs.find('div',{'id':'records'})
-    records = records.getText().strip().split('\n')
-    records = map(lambda x: x.split('|') , records)
+    soup = BeautifulSoup(fin)
+
+    player_id = soup.find('h1')
+    player_id = player_id.getText().split(' ')[0]
+
+    records = soup.find('div',{'id':'records'})
+
+    records = re.split('<br/>', records.decode_contents(formatter='html') )
+    records.pop()
+
+    records = map(lambda x: x.strip().split('|') , records)
     records = map( record2dict,records)
 
+    return player_id, records
+
+def rank_opppnent_analysis(player_id, records, min_play = 10):
+    
+    '''
     pos = {}
     cnt = {}
 
@@ -57,11 +73,18 @@ def parse(fin):
 
     print cnt[L[-1][1]],L[-1][1]
     #print record2dict(records[0])['level'].encode('gbk')
+    '''
+    return 
 
+def crawl(player_id):
+
+    r = requests.post('http://arcturus.su/tenhou/ranking/ranking.pl', data = {'name': player_id , 'lang':'en'})
+    return r.text
 
 def __main__():
 
-    parse(open('./data/Park.dat'))
+    #parse(crawl(u'虎皮猫'))
+    parse(open('./player-data/hupimao.dat'))
 
 if __name__ == '__main__':
     __main__()

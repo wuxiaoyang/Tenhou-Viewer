@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>279</width>
+    <width>408</width>
     <height>534</height>
    </rect>
   </property>
@@ -18,12 +18,12 @@
     <normaloff>../resources/1467273585_bamboo1.png</normaloff>../resources/1467273585_bamboo1.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="TenhouList" name="T">
+   <widget class="QTableWidget" name="T">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>21</y>
-      <width>256</width>
+      <width>391</width>
       <height>451</height>
      </rect>
     </property>
@@ -34,7 +34,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>279</width>
+     <width>408</width>
      <height>21</height>
     </rect>
    </property>
@@ -91,17 +91,10 @@
   </action>
   <action name="actionPlayer_Style">
    <property name="text">
-    <string>Player Style</string>
+    <string>User Profile</string>
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>TenhouList</class>
-   <extends>QTableWidget</extends>
-   <header>TenhouList.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
