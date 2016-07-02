@@ -4,11 +4,14 @@ from bs4 import BeautifulSoup
 import datetime
 import re
 import requests
+from statics import *
+import matplotlib.pyplot as plt
 
 #from statics import *
 
 player_pattern = re.compile( U'(\S+)\(([+-]\d+\.0)\)')
 tag_a_pattern = re.compile('<a\s+href="(.*)"\s*>.*</a>')
+dan_pattern = re.compile('<abbr\s+title=".*">(.*)</abbr>')
 
 def record2dict(r):
     
@@ -17,7 +20,7 @@ def record2dict(r):
     loc = r[1]
     tmsp = datetime.datetime.strptime( r[3]+' '+r[4] ,'%Y-%m-%d %H:%M')
     level = r[5][:-2]
-    dan = r[7]
+    dan = DANs[ dan_pattern.search(r[7]).group(1) ]
     result = [ (float(score), name) for name, score in player_pattern.findall(r[8]) ]
     result.sort(reverse = True)
 
@@ -29,7 +32,7 @@ def record2dict(r):
             'tmsp':tmsp,
             'level':level,
             'log':log,
-            'dan':dan,
+            'dan': dan,
             'res':result
             }
 
@@ -47,6 +50,25 @@ def parse(fin):
 
     records = map(lambda x: x.strip().split('|') , records)
     records = map( record2dict,records)
+
+    last_pt = 0
+
+    for game in records:
+
+        if game['loc'] == 'L0000' and si in game['level']:
+
+            dan = game['dan']
+            D = PT_Delta(game)
+
+            if last_pt + D >= PT_Ceil[ dan ]:
+                game['PT'] = PT_Mid[dan+1]
+            elif last_pt + D < 0:
+                game['PT'] = PT_Mid[dan-1]
+            else:
+                game['PT'] = last_pt + D
+            last_pt = game['PT']
+        else:
+            game['PT'] = None
 
     return player_id, records
 
@@ -81,10 +103,56 @@ def crawl(player_id):
     r = requests.post('http://arcturus.su/tenhou/ranking/ranking.pl', data = {'name': player_id , 'lang':'en'})
     return r.text
 
+def PT_Delta( game ):
+
+    rk = game['rank']
+    dan = game['dan']
+    level = game['level']
+
+    if rk == 4:
+        D = PTdec[ dan ]
+    else:
+        if ban in level:
+            D = PTinc[ban][rk]
+        elif shang in level:
+            D = PTinc[shang][rk]
+        elif te in level:
+            D =  PTinc[te][rk]
+        elif feng in level:
+            D =  PTinc[feng][rk]
+
+    if dong in level:
+        D = D/3*2
+    elif nan in level:
+        D = D
+
+    return D
+
+'''
+def compute_PT_curve(player_id, records):
+
+    normal_games = filter(lambda x:x['loc'] == 'L0000' and si in x['level'], records)
+    PT = [0]* (len(normal_games) + 1)
+
+    for i, game in enumerate(normal_games):
+
+        dan = game['dan']
+        D = PT_Delta(game)
+
+        if PT[i] + D >= PT_Ceil[ dan ]:
+            PT[i+1] = PT_Mid[dan+1]
+        elif PT[i] + D < 0:
+            PT[i+1] = PT_Mid[dan-1]
+        else:
+            PT[i+1] = PT[i] + D
+
+    return PT
+'''
+
 def __main__():
 
-    #parse(crawl(u'虎皮猫'))
-    parse(open('./player-data/hupimao.dat'))
+    #player_id, records = parse(crawl(u'虎皮猫'))
+    player_id, records = parse(open('./player-data/hupimao2.dat'))
 
 if __name__ == '__main__':
     __main__()
